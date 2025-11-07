@@ -1,10 +1,8 @@
 from dataclasses import dataclass
 from typing import Optional
 
-import httpx
-
 from app.infrastructure.asr.base import BaseASRProvider
-from app.settings.conf import Config
+from app.infrastructure.telegram.client import TelegramBotClient
 
 
 @dataclass
@@ -16,10 +14,16 @@ class StartTranscriptionFromTelegramVoiceCommand:
 
 
 class StartTranscriptionFromTelegramVoiceCommandHandler:
-    def __init__(self, config: Config, http_client: httpx.AsyncClient, asr_provider: BaseASRProvider) -> None:
-        self._config = config
-        self._http = http_client
+    def __init__(self, telegram: TelegramBotClient, asr_provider: BaseASRProvider) -> None:
+        self._telegram = telegram
         self._asr = asr_provider
 
     async def __call__(self, cmd: StartTranscriptionFromTelegramVoiceCommand) -> str:
-        return await self._asr.transcribe_from_url(url="telegram:file")
+        file_path = await self._telegram.get_file_path(cmd.file_id)
+        audio_bytes = await self._telegram.download_file(file_path)
+        text = await self._asr.transcribe_from_bytes(audio_bytes, language=cmd.language)
+        if text:
+            await self._telegram.send_message(chat_id=cmd.chat_id, text=text)
+        else:
+            await self._telegram.send_message(chat_id=cmd.chat_id, text="Не удалось распознать голосовое сообщение.")
+        return text

@@ -5,6 +5,8 @@ from punq import Container, Scope
 
 from app.infrastructure.asr.base import BaseASRProvider
 from app.infrastructure.asr.dummy import DummyASRProvider
+from app.infrastructure.asr.whisper import FasterWhisperASRProvider
+from app.infrastructure.telegram.client import TelegramBotClient
 from app.services.commands.transcriptions import (
     StartTranscriptionFromTelegramVoiceCommand,
     StartTranscriptionFromTelegramVoiceCommandHandler,
@@ -28,19 +30,27 @@ def _init_container() -> Container:
 
     container.register(httpx.AsyncClient, factory=create_http_client, scope=Scope.singleton)
 
+    def create_telegram_client() -> TelegramBotClient:
+        config: Config = container.resolve(Config)
+        http_client: httpx.AsyncClient = container.resolve(httpx.AsyncClient)
+        return TelegramBotClient(token=config.telegram_bot_token, http_client=http_client)
+
+    container.register(TelegramBotClient, factory=create_telegram_client, scope=Scope.singleton)
+
     def create_asr_provider() -> BaseASRProvider:
+        config: Config = container.resolve(Config)
+        if config.asr_provider.lower() == "whisper":
+            return FasterWhisperASRProvider(model_name_or_path="base", compute_type="int8")
         return DummyASRProvider()
 
     container.register(BaseASRProvider, factory=create_asr_provider, scope=Scope.singleton)
 
     def init_mediator() -> Mediator:
         mediator = Mediator()
-        config: Config = container.resolve(Config)
-        http_client: httpx.AsyncClient = container.resolve(httpx.AsyncClient)
-        asr_provider: BaseASRProvider = container.resolve(BaseASRProvider)
-
+        telegram = container.resolve(TelegramBotClient)
+        asr_provider = container.resolve(BaseASRProvider)
         transcription_handler = StartTranscriptionFromTelegramVoiceCommandHandler(
-            config=config, http_client=http_client, asr_provider=asr_provider
+            telegram=telegram, asr_provider=asr_provider
         )
         mediator.register_command(StartTranscriptionFromTelegramVoiceCommand, transcription_handler)
         return mediator

@@ -27,3 +27,5 @@ class TelegramBotClient:
     async def send_message(self, chat_id: int, text: str) -> None:
         resp = await self._http.post(f"{self._base_url}/sendMessage", json={"chat_id": chat_id, "text": text})
         resp.raise_for_status()
+
+
