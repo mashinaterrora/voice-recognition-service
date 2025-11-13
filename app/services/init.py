@@ -1,17 +1,26 @@
 from functools import lru_cache
+from typing import Callable
 
 import httpx
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from punq import Container, Scope
 
 from app.infrastructure.asr.base import BaseASRProvider
 from app.infrastructure.asr.dummy import DummyASRProvider
 from app.infrastructure.asr.whisper import FasterWhisperASRProvider
+from app.infrastructure.persistence.sqlalchemy.models import PendingTranscription, User, Payment
+from app.infrastructure.persistence.sqlalchemy.session import create_engine, create_session_factory
+from app.infrastructure.repositories.sqlalchemy.pending import PendingTranscriptionsGateway
+from app.infrastructure.repositories.sqlalchemy.users import UsersGateway
+from app.infrastructure.repositories.sqlalchemy.payments import PaymentsGateway
 from app.infrastructure.telegram.client import TelegramBotClient
+from app.services.billing import BillingService
 from app.services.commands.transcriptions import (
     StartTranscriptionFromTelegramVoiceCommand,
     StartTranscriptionFromTelegramVoiceCommandHandler,
 )
 from app.services.mediator.base import Mediator
+from app.services.uow.sqlalchemy import SQLAlchemyUnitOfWork
 from app.settings.conf import Config
 
 
@@ -44,6 +53,36 @@ def _init_container() -> Container:
         return DummyASRProvider()
 
     container.register(BaseASRProvider, factory=create_asr_provider, scope=Scope.singleton)
+
+    def init_engine() -> AsyncEngine:
+        cfg: Config = container.resolve(Config)
+        return create_engine(cfg)
+
+    container.register(AsyncEngine, factory=init_engine, scope=Scope.singleton)
+
+    def init_session_factory():
+        engine = container.resolve(AsyncEngine)
+        return create_session_factory(engine)
+
+    container.register(Callable[[], AsyncSession], factory=init_session_factory, scope=Scope.singleton)
+
+    def create_uow() -> SQLAlchemyUnitOfWork:
+        session_factory = container.resolve(Callable[[], AsyncSession])
+        session: AsyncSession = session_factory()
+        uow = SQLAlchemyUnitOfWork(session=session)
+        uow.register_repository(User, UsersGateway(session))
+        uow.register_repository(PendingTranscription, PendingTranscriptionsGateway(session))
+        uow.register_repository(Payment, PaymentsGateway(session))
+        return uow
+
+    container.register(SQLAlchemyUnitOfWork, factory=create_uow)
+
+    def create_billing_service() -> BillingService:
+        cfg = container.resolve(Config)
+        tg = container.resolve(TelegramBotClient)
+        return BillingService(config=cfg, uow_factory=lambda: container.resolve(SQLAlchemyUnitOfWork), telegram=tg)
+
+    container.register(BillingService, factory=create_billing_service, scope=Scope.singleton)
 
     def init_mediator() -> Mediator:
         mediator = Mediator()

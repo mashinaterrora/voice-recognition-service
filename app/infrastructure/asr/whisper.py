@@ -48,3 +48,7 @@ class FasterWhisperASRProvider(BaseASRProvider):
             return " ".join(t for t in parts if t).strip()
 
 
+
+
+
+

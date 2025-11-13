@@ -18,13 +18,29 @@ class FromUser(BaseModel):
     id: int
 
 
+class SuccessfulPayment(BaseModel):
+    currency: str
+    total_amount: int
+    telegram_payment_charge_id: Optional[str] = None
+
+
 class Message(BaseModel):
     message_id: int
     chat: Chat
     from_: FromUser = Field(alias="from")
     voice: Optional[Voice] = None
+    successful_payment: Optional[SuccessfulPayment] = None
+    text: Optional[str] = None
+
+
+class PreCheckoutQuery(BaseModel):
+    id: str
+    from_: FromUser = Field(alias="from")
+    currency: str
+    total_amount: int
 
 
 class Update(BaseModel):
     update_id: int
     message: Optional[Message] = None
+    pre_checkout_query: Optional[PreCheckoutQuery] = None

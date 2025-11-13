@@ -10,6 +10,7 @@ class StartTranscriptionFromTelegramVoiceCommand:
     chat_id: int
     user_id: int
     file_id: str
+    message_id: Optional[int] = None
     language: Optional[str] = None
 
 
@@ -23,7 +24,15 @@ class StartTranscriptionFromTelegramVoiceCommandHandler:
         audio_bytes = await self._telegram.download_file(file_path)
         text = await self._asr.transcribe_from_bytes(audio_bytes, language=cmd.language)
         if text:
-            await self._telegram.send_message(chat_id=cmd.chat_id, text=text)
+            await self._telegram.send_message(
+                chat_id=cmd.chat_id,
+                text=text,
+                reply_to_message_id=cmd.message_id,
+            )
         else:
-            await self._telegram.send_message(chat_id=cmd.chat_id, text="Не удалось распознать голосовое сообщение.")
+            await self._telegram.send_message(
+                chat_id=cmd.chat_id,
+                text="Could not recognize the voice message.",
+                reply_to_message_id=cmd.message_id,
+            )
         return text
