@@ -1,11 +1,8 @@
 ![Repository Top Language](https://img.shields.io/github/languages/top/mashinaterrora/voice-recognition-service)
 ![Python version](https://img.shields.io/badge/python-3.10-blue.svg)
-![Github Repository Size](https://img.shields.io/github/repo-size/mashinaterrora/voice-recognition-service)
-![Github Open Issues](https://img.shields.io/github/issues/mashinaterrora/voice-recognition-service)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![GitHub last commit](https://img.shields.io/github/last-commit/mashinaterrora/voice-recognition-service)
 ![GitHub contributors](https://img.shields.io/github/contributors/mashinaterrora/voice-recognition-service)
-![Simply the best](https://img.shields.io/badge/simply-the%20best%20%3B%29-orange)
 
 # Voice Recognition Service
 
