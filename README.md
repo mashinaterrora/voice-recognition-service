@@ -7,8 +7,6 @@
 ![GitHub contributors](https://img.shields.io/github/contributors/mashinaterrora/voice-recognition-service)
 ![Simply the best](https://img.shields.io/badge/simply-the%20best%20%3B%29-orange)
 
-<img align="right" width="50%" src="./images/image.jpg">
-
 # Voice Recognition Service
 
 ## Description
@@ -17,10 +15,10 @@ Telegram voice-to-text service on FastAPI. Incoming Telegram voice messages are 
 
 ## Solution notes
 
-- :trident: clean architecture (Also based on CQRS principle)
-- :book: DDD layout
-- :card_file_box: Documentation and some details included in Swagger
-- :white_check_mark: ready for extension (billing, admin rules, multiple ASR providers)
+- clean architecture (Also based on CQRS principle)
+- DDD layout
+- Documentation and some details included in Swagger
+- ready for extension (billing, admin rules, multiple ASR providers)
 - ```http://localhost:8000/api/docs - Swagger```
 
 ## HOWTO (Docker + Makefile)
