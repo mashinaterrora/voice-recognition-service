@@ -25,3 +25,4 @@ class SQLAlchemyUnitOfWork(UnitOfWork):
         except Exception as exc:
             await self.rollback()
             raise exc
+

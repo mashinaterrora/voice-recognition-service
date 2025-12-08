@@ -48,3 +48,4 @@ class UoWModel(Generic[ModelT]):
     def __setattr__(self, key: str, value):
         setattr(self._model, key, value)
         self._uow.register_dirty(self._model)
+

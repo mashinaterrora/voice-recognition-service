@@ -23,3 +23,4 @@ class InMemoryUsersRepository(BaseUsersRepository):
 
     async def ensure_user(self, user_id: int) -> None:
         self._balances.setdefault(user_id, 0)
+

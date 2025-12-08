@@ -11,3 +11,4 @@ class PaymentsGateway:
         p = Payment(user_id=user_id, stars=stars, telegram_payment_id=telegram_payment_charge_id)
         self._session.add(p)
         return p
+

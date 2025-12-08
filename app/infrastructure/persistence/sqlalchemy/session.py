@@ -10,3 +10,4 @@ def create_engine(config: Config) -> AsyncEngine:
 
 def create_session_factory(engine: AsyncEngine):
     return sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
+

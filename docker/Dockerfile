@@ -17,3 +17,4 @@ RUN pip install --upgrade pip && \
     poetry install --no-root --no-interaction --no-ansi
 
 COPY docker /app/
+

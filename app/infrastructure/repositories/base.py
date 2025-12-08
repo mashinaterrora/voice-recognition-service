@@ -18,3 +18,4 @@ class BaseUsersRepository(ABC):
     @abstractmethod
     async def ensure_user(self, user_id: int) -> None:
         raise NotImplementedError
+

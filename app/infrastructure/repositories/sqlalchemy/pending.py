@@ -23,3 +23,4 @@ class PendingTranscriptionsGateway:
 
     async def remove(self, pending: PendingTranscription) -> None:
         await self._session.delete(pending)
+

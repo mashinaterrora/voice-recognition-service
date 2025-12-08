@@ -55,3 +55,4 @@ class UnitOfWork(UoWPort):
 
     def repository(self, model_class: Type[ModelT]) -> GatewayT:
         return self.repositories[model_class]
+

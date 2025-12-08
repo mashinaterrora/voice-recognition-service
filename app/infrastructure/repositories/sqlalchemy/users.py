@@ -45,3 +45,4 @@ class UsersGateway:
 
     async def remove(self, model: User) -> None:
         await self._session.delete(model)
+
