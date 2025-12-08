@@ -5,6 +5,7 @@ from typing import Optional
 from app.services.init import init_container
 from app.settings.conf import Config
 from app.services.polling import run_polling
+from app.services.migrations import run_migrations
 
 
 @asynccontextmanager
@@ -14,6 +15,8 @@ async def lifespan(*_):
 
     polling_task: Optional[asyncio.Task] = None
     try:
+        if config.run_migrations_on_start:
+            await run_migrations(config.database_url)
         if config.update_mode.lower() == "polling":
             polling_task = asyncio.create_task(run_polling(container))
         yield

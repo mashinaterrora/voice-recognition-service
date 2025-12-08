@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 from app.application.api.lifespan import lifespan
 from app.application.api.telegram.handlers import router as telegram_router
+from app.application.api.health import router as health_router
 
 
 def create_app() -> FastAPI:
@@ -13,5 +14,6 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
+    app.include_router(health_router)
     app.include_router(telegram_router, prefix="/telegram")
     return app

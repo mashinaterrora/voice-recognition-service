@@ -20,6 +20,8 @@ class Config(BaseSettings):
 
     refund_test_mode: bool = Field(default=False, alias="REFUND_TEST_MODE")
 
+    run_migrations_on_start: bool = Field(default=True, alias="RUN_MIGRATIONS_ON_START")
+
     database_url: str = Field(
         default="postgresql+asyncpg://postgres:postgres@postgres:5432/postgres",
         alias="DATABASE_URL",
